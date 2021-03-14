@@ -33,7 +33,11 @@ app.use((err, req, res, next) => {
         })
 })
 
-app.listen(3000, () => {
-    dbConnection.sync()
-    console.log('Server started')
-})
+dbConnection.sync()
+    .then(() => {
+        console.log('DB synced')
+
+        app.listen(3000, () => {
+            console.log('Server started')
+        })
+    })

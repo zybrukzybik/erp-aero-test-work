@@ -1,26 +1,16 @@
 require('dotenv').config({path: require('path').join(__dirname, '..', '.env')})
 
-// const mysql = require('mysql2')
-//
-// const connection = mysql.createConnection({
-//     host: process.env.DB_HOST,
-//     user: process.env.DB_USERNAME,
-//     password: process.env.DB_PASSWORD,
-//     database: process.env.DB_NAME
-// }).promise()
-//
-// module.exports = connection
+const {db_name, db_host} = require('../config').db.mysql
 
 const {Sequelize} = require('sequelize')
 
 const dbConnection = new Sequelize(
-    process.env.DB_NAME,
+    db_name,
     process.env.DB_USERNAME,
     process.env.DB_PASSWORD,
     {
-        host: process.env.DB_HOST,
+        host: db_host,
         dialect: 'mysql',
-        // logging: false
     })
 
 module.exports = dbConnection

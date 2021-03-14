@@ -6,7 +6,7 @@
   "scripts": {
     "createDB": "node fixtures/createDB.js",
     "dropDB": "node fixtures/dropDB.js",
-    "cleanFiles": "node fixtures/cleanFiles.js",
+    "cleanDbFs": "node fixtures/cleanDbAndFiles.js",
     "dev": "nodemon app.js",
     "start": "node app.js"
   },

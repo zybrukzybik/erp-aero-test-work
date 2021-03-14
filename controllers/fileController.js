@@ -26,78 +26,103 @@ async function throwErrIfFileNotExistsInDbOrFS(req, res, next) {
     return {reqFilename: reqFilename, fileDB: fileDB}
 }
 
+//  CONTROLLERS
 async function fileUpload(req, res, next) {
-    let filedata = req.file     //from multer
+    try {
+        let filedata = req.file     //from multer
 
-    await File.create({
-        filename: getFilename(filedata),
-        extension: getExtension(filedata),
-        mime_type: filedata.mimetype,
-        size: filedata.size,
-        upload_date: Date.now()
-    })
+        await File.create({
+            filename: getFilename(filedata),
+            extension: getExtension(filedata),
+            mime_type: filedata.mimetype,
+            size: filedata.size,
+            upload_date: Date.now()
+        })
 
-    res.json({
-        result: `File upload success: <${filedata.originalname}>`
-    })
+        res.json({
+            result: `File upload success: <${filedata.originalname}>`
+        })
+    } catch (err) {
+        next(err)
+    }
 }
 
 async function fileUpdate(req, res, next) {
-    const filedata = req.file     //from multer
-    const reqFilename = req.params.id
+    try {
+        const filedata = req.file     //from multer
+        const reqFilename = req.params.id
 
-    await File.update({
-        filename: getFilename(filedata),
-        extension: getExtension(filedata),
-        mime_type: filedata.mimetype,
-        size: filedata.size,
-        upload_date: Date.now()
-    }, {
-        where: {filename: reqFilename}
-    })
+        await File.update({
+            filename: getFilename(filedata),
+            extension: getExtension(filedata),
+            mime_type: filedata.mimetype,
+            size: filedata.size,
+            upload_date: Date.now()
+        }, {
+            where: {filename: reqFilename}
+        })
 
-    res.json({
-        result: `File update success: <${filedata.originalname}>`
-    })
+        res.json({
+            result: `File update success: <${filedata.originalname}>`
+        })
+    } catch (err) {
+        next(err)
+    }
 }
 
 async function fileList(req, res, next) {
-    const {list_size = 10, page = 1} = req.query
+    try {
+        const {list_size = 10, page = 1} = req.query
 
-    let list = await File.findAll({
-            offset: ((page - 1) * list_size),
-            limit: Number(list_size),
-            // order: [['filename', 'ASC']]
-        },
-        {raw: true}
-    )
+        let list = await File.findAll({
+                offset: ((page - 1) * list_size),
+                limit: Number(list_size),
+                // order: [['filename', 'ASC']]
+            },
+            {raw: true}
+        )
 
-    list = list.map(fileMapper)
-    res.json(list)
+        list = list.map(fileMapper)
+        res.json(list)
+    } catch (err) {
+        next(err)
+    }
 }
 
 async function fileInfo(req, res, next) {
-    const {fileDB} = await throwErrIfFileNotExistsInDbOrFS(req, res, next)
+    try {
+        const {fileDB} = await throwErrIfFileNotExistsInDbOrFS(req, res, next)
 
-    res.json(fileMapper(fileDB))
+        res.json(fileMapper(fileDB))
+    } catch (err) {
+        next(err)
+    }
 }
 
 async function fileDownload(req, res, next) {
-    const {fileDB} = await throwErrIfFileNotExistsInDbOrFS(req, res, next)
+    try {
+        const {fileDB} = await throwErrIfFileNotExistsInDbOrFS(req, res, next)
 
-    res.setHeader('Content-disposition', 'attachment; filename=' + fileDB.filename)
-    res.setHeader('Content-type', fileDB.mime_type)
+        res.setHeader('Content-disposition', 'attachment; filename=' + fileDB.filename)
+        res.setHeader('Content-type', fileDB.mime_type)
 
-    res.download(uploadPath + fileDB.filename + fileDB.extension)
+        res.download(uploadPath + fileDB.filename + fileDB.extension)
+    } catch (err) {
+        next(err)
+    }
 }
 
 async function fileDelete(req, res, next) {
-    const {reqFilename, fileDB} = await throwErrIfFileNotExistsInDbOrFS(req, res, next)
+    try {
+        const {reqFilename, fileDB} = await throwErrIfFileNotExistsInDbOrFS(req, res, next)
 
-    await deleteFile(uploadPath + fileDB.filename + fileDB.extension)
-    await File.destroy({where: {filename: reqFilename}})
+        await deleteFile(uploadPath + fileDB.filename + fileDB.extension)
+        await File.destroy({where: {filename: reqFilename}})
 
-    res.status(200).json({result: 'File deleted'})
+        res.status(200).json({result: 'File deleted'})
+    } catch (err) {
+        next(err)
+    }
 }
 
 module.exports = {

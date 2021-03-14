@@ -19,11 +19,12 @@ const connection = mysql.createConnection({
     password: process.env.DB_PASSWORD
 }).promise()
 
-async function truncateTable(connection, tableName) {
+async function truncateTable(connection, ...tablesArr) {
     try {
-        await connection.query(`TRUNCATE TABLE ${tableName}`)
-
-        console.log(`Table ${tableName} cleaned`)
+        for (let i = 0; i < tablesArr.length; i++) {
+            await connection.query(`TRUNCATE TABLE ${tablesArr[i]}`)
+            console.log(`Table ${tablesArr[i]} cleaned`)
+        }
 
         connection.end()
     } catch (err) {
@@ -35,9 +36,9 @@ async function deleteFilesFromDir(dir) {
     try {
         const files = await readdir(dir)
 
-        files.forEach(async file => {
-            await unlink(path.join(dir, file))
-        })
+        for (let i = 0; i < files.length; i++) {
+            await unlink(path.join(dir, files[i]))
+        }
 
         console.log('Files deleted')
     } catch (err) {
@@ -45,5 +46,10 @@ async function deleteFilesFromDir(dir) {
     }
 }
 
-truncateTable(connection, 'files')
-deleteFilesFromDir(fixUploadPath)
+async function cleanAll() {
+    await truncateTable(connection, 'users', 'files')
+    await deleteFilesFromDir(fixUploadPath)
+}
+
+cleanAll()
+
