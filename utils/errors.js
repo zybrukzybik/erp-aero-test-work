@@ -11,6 +11,7 @@ module.exports = {
     'Authorization fail (bad token)': 401,
     'Not authorized': 403,
     'jwt expired': 401,
+    'invalid signature': 401,
     'Authorization fail (User not found)': 401
 
 }
